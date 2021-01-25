@@ -1,0 +1,932 @@
+---
+title: 'Webinaire: Initiation au logiciel R'
+author: "Data 221"
+date: "08/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Pourquoi R?
+
+
+## Création d’un projet sur R et organisation du répertoire de travail
+
+Pour créer un projet sur R il faut aller sur **File** ensuit sur **New Project** et vous spécifiez le nom du Projet et le dossier où vous voulez le sauvegarder.
+
+Un projet (un fichier .Rproj) sera sauvegarder dans un dossier portant le nom du projet
+
+
+## Prise en main avec R et RSudio 
+
+** quelques commande pour interagir avec le repertoire de travail sans aller sur 
+la fenêtre windows (Ubuntu ou Mac)
+
+```{r PM}
+
+# un exemple de commentaire
+
+#afficher les objects de l'environnement de travail
+ls()
+
+#Supprimmer un objet dans l'environmnt de travail
+
+x = 1 # on crée l'objet x
+
+rm(x) #remove
+
+#supprimer tous les elements de l'environment de travail
+x = 1
+y = 2
+
+rm(list = ls())
+
+# supprimer une liste donnée d'objet
+x=1 ;y=1; z=1 # on  crée 3 objet , y et z
+
+rm(list = c("x","y"))
+
+
+#afficher tous les fichiers du répertoire de travail
+
+list.files()
+
+#afficher le chemin du répertoire de travail
+
+getwd()# get working directory
+
+#vérifier si un fichier onné existe dans le repertoire de travail
+file.exists("amsa.csv") 
+# TRUE= ça existe et FALSE=ça n'existe pas
+
+write.csv(mtcars,"amsa.csv") # on crée un fichier csv dans le repertoire de travail
+
+file.exists("amsa.csv") # TRUE= ça existe et FALSE=ça n'existe pas
+
+# lister les fichiers du répertoire selon un modèle (pattern)
+list.files(pattern = ".csv")
+
+#supprimer un ficher à partir de R
+file.remove("amsa.csv")
+
+list.files() # on ne voit plus le fichier csv
+
+#Creer un dossier avec R
+dir.create("My_dir")
+
+# vérifier si un dossier donné existe dans le répertoire de travail
+dir.exists("My_dir")
+
+#supprimer un dossier avec R
+unlink("My_dir", recursive = TRUE)
+
+file.create("amsa.csv")
+file.create("amsa.xlsx")
+
+#obtenir de l'aide sur une comande  sur R exemple la commande write.csv()
+?write.csv # sans les parenthèses
+# ou bient
+help("mean")
+
+
+```
+
+
+
+## Manipulation des différents types d’objet de base de R 
+
+### Type d'objets sur R
+
+1. `r "integer"` : nombre entier
+
+2. `r "double"`: nombre réel
+
+3. `r "complexe"` : nombre complexe
+
+4. ``r "character"` : chaine de characteres
+
+5. `r "Logical"` (TRUE or FALSE): booléen (VRAI ou FAUX)
+
+
+```{r type_objet}
+
+# entier
+x=2L # quand on met 2 par défaut c'est un nombre réel
+
+typeof(x) # voir le type d'objet
+is.integer(x) #vérifie si c'est un entier
+
+x #afficher la valeur sur le console
+
+print(x) #une autre manière d'afficher x
+
+
+# nombre réél
+y=2.4
+typeof(y)
+is.double(y)
+is.integer(y)
+
+# nombre complexe
+z=2i+3
+typeof(z)
+is.complex(z) # est ce que z est un nombre complexe?
+is.integer(z) # est ce que z est un entier?
+Im(z) # la partie imaginaire
+Re(z) # la partie réelle
+
+#chaine de charactere
+c="Senegal"
+typeof(c)
+is.character(c)
+
+#Booléen
+l=TRUE
+l2=FALSE
+typeof(l)
+is.logical(l2)
+
+```
+
+
+### Structure des données
+
+#### Vecteur 
+
+Sur R, un vecteur est un simple object de scokage de données. un façon simple de créer un vecteur est d'utiliser la commende `c()`
+
+** Un nombre réel est un vecteur de longueur 1
+
+** Une matrice est un vecteur avec des dimension
+
+** tous les élémént d'un vecteur doivent avoir le meme type d'objet. Sinon les données doivent être stocquées dans un object de type `r "list"`
+
+```{r Vecteur}
+
+#un vecteur d'netier
+x=c(16L, 26L, 30L,20L)
+length(x) # la longueur du vecteur
+typeof(x) # le type d'objet stockées dans le vecteur
+
+# vecteur de nombres réels
+y=c(16,26,30)
+length(y)
+typeof(y)
+
+# vecteur de nombre complexes
+z=c(2i,3i-1,5i+10,6i)
+typeof(z)
+length(z)
+Im(z) # stocke les parties imaginaire
+Re(z) # stocke les parties réelles
+
+
+
+#vecteur de chaeacteres
+c=c("Amsa","Rassoul","Ndeye Awa", "Aboubacar")
+length(c)
+typeof(c)
+
+# vecteur de boolléens
+l=c(TRUE,FALSE,T,T,F,F)
+length(l)
+typeof(l)
+
+# création d'un matrice à partir de x
+matrice=matrix(x,nrow=2,ncol=2)
+print(matrice)
+
+```
+
+
+#### list
+
+** Une list est un vecteur d'objet.
+
+** Une liste peut avoir différent types d'object dans chaque élément.
+
+```{r liste}
+
+
+# un exemple de liste
+liste=list(c(20L,12L),
+           c(1,3,3),
+           c(2i+1),
+           c("MAman","Papa"),
+           c(TRUE,FALSE)
+           )
+
+
+print(liste)
+
+
+# une lliste créée à partir de vecteur déjà définis
+l2=list(x,y,z,c,l,matrice)
+
+print(l2)
+
+typeof(liste)
+is.vector(l2)
+is.list(l2)
+
+
+sapply(l2,typeof) # une manière d'afficher de type de chaque élément
+sapply(l2,class) # une manière d'afficher la class de chaque élément
+
+```
+
+
+#### dataframe
+
+** Un `r "dataframe"` est type particulier de list où les éléments ont la même longueur.
+
+** Le traitement des données statistiques sur R porte souvent sur les dataframes et leurs variantes (tibble, data.table)
+
+
+```{r df}
+
+# un exemple de dataframe
+df=data.frame(
+ Nom=c("Astou","Cheikh","Tidiane"),
+ Age=c(20,22,25),
+ Sexe=c("F","H","H"),
+ Pays=c("Senegal","Burkina Faso","Senegal")
+)
+
+
+head(df)
+
+typeof(df)
+class(df)
+is.data.frame(df)
+
+```
+
+
+
+#### quelqes Operations de base
+
+**operations mathématiques
+
+```{r OM}
+
+x=20;y=10
+x1=c(1,3,4);y1=c(0.2,3,2)
+
+z1=c(1i,2i-1,3i);z2=c(-2i,6i+2,-8i)
+
+#Addition
+x+y
+x1+y1 # addition élément par élément
+z1+z2
+
+# multiplication
+x*y
+x1*y1 # multiplication élément par élément
+z1*z2  #multiplication élément par élément
+
+#division
+x/y
+
+x1/y1 # division élément par élément
+z1/z2 # division élément par élément
+
+
+#division modulo: reste de la division de x par y
+x%%y
+x1%%y1
+x1%%y1 # Division modulo élémént par élémént
+
+#exposant
+x^2
+x1^2 # élève chaque élément au carré
+z1^2
+
+cos(x)
+cos(x1) # calcul le cosinus de chaque élémént
+
+# comparaison: ça renvoit un logical
+x==y #verifier un e égalisé
+x!=y # vérifier si c'est différent
+x>=y
+x<=y
+
+TRUE==FALSE
+
+
+```
+
+** sur les chaines de character
+
+```{r OCC}
+
+nom="Niang"
+prenom="Amsata"
+
+# combiner des objet de chaines de charactère en un seul objet
+nom_complet=paste(prenom,nom)
+
+# remplacer "g" par G
+gsub("g","G",nom)
+
+#extraire la partie de la chaine de la position 2 à la position 4
+substr(prenom,2,4)
+
+group=c("Cheikh", "Amina","Fallou")
+
+# extraire les indices de position des élément ayant un "m"
+grep("m",group)
+
+# extraire les éléménts des élément ayant un "m"
+grep("a",group,value = T)
+
+```
+
+
+** sur les matrices
+
+```{r OSM}
+
+
+m=matrix(
+  c(1,3,4,
+  3,4,9,
+  9,0,6),
+  nrow = 3,
+  ncol = 3
+  
+)
+
+m^2 #eleve chaque element au carré
+
+# A noter: commande rep()  replicate
+m1=matrix(rep(c(1,2,3),times=3),nrow = 3,ncol = 3)
+m2=matrix(rep(c(1,2,3),each=3),nrow = 3,ncol = 3)
+
+#diagonal de A
+diag(m)
+
+#transposé
+t(m)
+
+#multiplication matricielle
+m%*%m
+
+# deter le vecteur/matrice X tell que mx=b
+b=c(1,1,1)
+solve(m,b)
+
+
+```
+
+
+## Subsetting (filtre,extraction)
+
+
+Il y a 3 opérateurs d'extracion d'éléménts: `r "["`, `r "[["` et `r "$"`
+
+
+```{r SS}
+
+#un vecteur [
+
+x=round(runif(10)*100)
+
+x[1] # extraire le premier élément
+x[2] #extraire le deuxième élément
+
+x[-2] #  tous les elements sauf le deuxième
+
+x[1:3] # les éléménts de 1 à 3
+
+x[c(1,4,9)] #selectionner les elements 1 , 4 et 9
+
+x[-c(1,4,9)] #selectionner les elements 1 , 4 et 9
+
+x[x>10] # selectionner les elements superieur à 10
+
+x[which(x>10)] # une autre manière de faire
+
+# note: LETTERS
+names(x)=LETTERS[1:10]
+x
+x["A"]
+x[c("B","C")]
+
+# note: rep
+ind=rep(c(T,F),5)
+
+x[ind]
+
+
+
+##List
+# extraire les 3 premiere lement dela liste sous forme d'une liste
+l2[1:3]
+l2[1]
+
+l2[[3]] # extraire l'element dela list sous sa forme initiale
+
+l2[[3]][1]
+names(l2)=LETTERS[1:length(l2)]
+
+l2$A # la même chose que l2[[1]]
+
+#matrice
+m
+
+#matrice[ligne,colonne]
+
+m[1,]
+m[,1]
+
+m[1:2,]
+m[,c(TRUE,TRUE,FALSE)]
+
+colnames(m)=c("col1","col2","col3")
+
+m
+
+m[,"col1"]
+m[,c("col1","col3")]
+
+#dataframe
+df
+
+df$Nom # la colonne Nom
+
+df$Age # la comlonne age
+
+df[,c("Nom","Age")] # extraire les colonnes Nom et Age sous forme de dataframe
+
+df[1:2,]
+
+df[df$Age==20,] # extraire les lignes où l'âge de la personne est 20
+
+df[df$Age>20,] # extraire les lignes où l'âge de la personne est > 20
+
+subset(df,Age>20) # une autre manière de faire
+
+```
+
+
+## Controles et boucles
+
+### if condition
+
+
+forme de base sur R
+
+** `r "if (consition) action_si_vraie"`
+
+** `r " if (condition) action_si_vraie else action_si_faux"`
+
+pour écrire la condition sur plusieurs lignes il faut utiliser les accolades `r "{}"`
+
+
+```{r IFC}
+
+
+#syntacxe de base 
+condition=TRUE # uste pour l'exemple
+
+if(condition) {
+  
+  #action si vraie
+}
+
+x=20
+
+if (x%%2==0) {
+  
+  print(paste(x," est un nombre paire"))
+}
+
+
+#avec else
+
+if (condition) {
+  
+  #action si vraie
+  
+} else {
+  
+  # action si faux
+}
+
+x=11
+if (x%%2==0) {
+  
+  print(paste(x," est un nombre paire"))
+} else {
+  
+    print(paste(x," est un nombre impaire"))
+  
+}
+
+# if else imbriqué
+
+if (condition) {
+  
+  #action
+} else if (condition) {
+  
+  #action 2
+  
+} else {
+
+  #action 3
+  
+}
+
+
+x=10L
+
+if(is.integer(x)) { #on peut se passer de ==TRUE
+  
+  print(paste(x, " est un entier"))
+  
+} else if (is.double(x)==TRUE) {
+  
+    print(paste(x, " est un réel"))
+
+  
+} else if (is.complex(x)==TRUE) {
+  
+    print(paste(x, " est un complexe"))
+
+} else {
+    print(paste(x, " je ne sais pas"))
+
+}
+
+#exemple
+
+x=20
+
+if (x%%2==0) {
+  print("le nombre est paire")
+} else( "le nombre est impaire")
+
+
+
+
+z=0i+2
+
+
+if(Im(z)>0) {
+  
+  print("la partie imaginaire est positive")
+} else if(Im(z)<0) {
+  
+  print("la partie imaginaire est négative")
+} else {
+  
+  print("La partie imaginaire est nulle")
+}
+
+#NOte: on peut créér plutard une fonction qui prend un nombre complexe et nous donne 
+#le signe de la partie imaginaire
+
+```
+
+
+### Switch case
+
+
+```{r SWC}
+
+indicatif="222"
+
+
+switch(indicatif,
+       "221"= "Senegal",
+       "235"= "Burkina Faso",
+       "Autre pays" # option par défaut
+       )
+
+```
+
+
+### boucle for
+
+** Il y a deux manières de terminer une bucle for de facon prématuré :`r "next"` et `r "break"`
+
+
+```{r BCF}
+
+#syntaxe de base
+ # for (item in vector) {
+ #   
+ #   #action
+ # }
+
+#afficher les nombre de 1 à 10
+for (i in 1:10) {
+  
+  print(i)
+}
+
+
+#un vecteur contenant les noms du dataframe df
+nom_p=as.character(df$Nom)
+
+# afficher les noms contenus dans nom_p
+for (i in nom_p) {
+  
+  print(i)
+}
+
+
+# une autre manière de faire
+for (i in 1:length(nom_p)) {
+  
+  print(nom_p[i])
+}
+
+
+# une autre maière de faire
+for (i in seq_along(nom_p)) {
+  
+  print(nom_p[i])
+}
+
+
+# utilisation de break
+for(i in 1:100) {
+  
+    if (i > 10) break
+
+  print(paste(" le carré de ",i," est: ",i*i))
+  
+}
+
+# utilisation de next 
+for(i in 1:20) {
+  
+  if (i%%2!=0) next 
+    print(paste(i," est un multiple de 3"))
+
+}
+
+
+# modification des elemnt d'une matrice en utilisant la bouble for
+m
+
+m_carre=matrix(, nrow = nrow(m),ncol = ncol(m)) # matrice vide
+# on va rempler les 
+
+
+for (i in 1:ncol(m)) {
+  
+  for (j in 1:nrow(m)) {
+    m_carre[i,j]=m[i,j]*m[i,j]
+  }
+}
+
+m_carre
+
+# plutard on pourra creer une fonction qui calcul le carré des element d'une matrice
+
+```
+
+
+
+
+### while
+
+
+
+```{r BWL}
+
+x=10
+while (x>0) {
+  
+  print(x)
+  
+  x=x-1
+  
+  
+}
+
+
+```
+
+
+
+##  Fonction sur R
+
+
+ Une fonction peut etre decomposée en 3 composantes: **arguments** , **corps**  et **l'environnement**
+
+ Il existe des fonctions parmis les fonctions primitives excusivment developpées avec le language C
+
+ Les foncions sont des objets au même titre que les vecteurs.
+
+#### Composantes d'une fonctions
+
+ `r "formals()"` : liste des argumentsqui controle la maniere dont la fonction doit etre appelée
+ 
+ `r "body()"`: le code à l'intérieur de la fonction
+ 
+ `r "environment()"` : le structure des données qui determines comment la fonction trouve des valeurs associées au nom
+ 
+ 
+```{r FOC}
+ 
+
+ma_fonction=function(arguments){
+  
+  #code de la fonction
+  # retur(resultat)
+}
+
+#exemple
+
+addition=function(x,y) {
+  x+y
+}
+
+formals(addition)
+
+body(addition)
+
+environment(addition)
+
+addition(2,4)
+
+addition("Z",3)
+
+
+addition=function(x,y) {
+  
+  #controle des entrées
+  
+  if( is.numeric(x)==FALSE | is.numeric(y)==FALSE){
+    stop("Veiller entrer des nombres rééls")
+    
+  }
+  x+y
+}
+
+addition("A",2)
+
+
+calculer=function(x,y,mode) {
+  res=switch (mode,
+    "+" = x+y,
+    "-"= x-y,
+    "*"=x*y,
+    "%%"=x%%y,
+    "/"=x/y,
+    "enter a valid operator"
+    
+  )
+  
+  return(res)
+}
+
+calculer(2,3,"+")
+calculer(2,3,"-")
+calculer(2,3,"*")
+calculer(2,3,"%%")
+calculer(2,3,"/")
+
+calculer(2,3,"M")
+
+
+
+# la moyenne des ages dans notre dataframe
+moyenne(df$Age)
+moyenne(1:100)
+
+
+variance=function(x){
+  
+  res=sum((x-moyenne(x))^2)/length(x)
+  
+  return(res)
+}
+
+variance(df$Age)
+
+
+```
+
+## lecture de données externes
+
+```{r LDE}
+
+
+list.files("Data")
+
+library(readxl) #utilisation du packages readxl: comment l'installer?
+
+# setwd("C:/Users/AMSATA NIANG/Documents/data221/Webinaire/Webinaire")
+# install.packages("readxl")
+
+path="Data/Senegal.xlsx"
+excel_sheets(path) # voir les feuilles
+
+senegal=read_excel(path,sheet = "Sheet1")
+
+head(senegal) #les elements au top
+
+#lire un fichier csv
+sn_csv=read.csv("Data/senegal_csv.csv")
+
+# lire un fichier txt
+sn_txt=read.table("Data/senegal_txt.txt")
+
+View(senegal)
+#voire les colonnes du dataframe
+names(senegal)
+
+
+typeof(senegal$Region)
+
+class(senegal$Population)
+typeof(senegal$Superficie)
+
+senegal$Population=gsub(" ","", senegal$Population)
+senegal$Population=as.numeric(senegal$Population)
+
+senegal$densite<-round(senegal$Population/senegal$Superficie)
+
+# senegal=senegal[,c(4,2,1,3)]
+
+head(senegal)
+
+
+```
+
+
+## fichier shapefie et raster
+
+```{r SHP}
+library(rgdal)
+
+list.files("Data/shapefile")
+sn_shp=readOGR("Data/shapefile/SEN_adm1.shp")
+
+plot(sn_shp)
+
+class(sn_shp@data)
+
+head(sn_shp@data)
+
+plot(sn_shp)
+plot(sn_shp,col=sn_shp$ID_1)
+
+
+# raster
+
+library(raster)
+
+list.files("Data/raster")
+
+
+nord_B5=raster("Data/raster/B5.tif")
+nord_B4=raster("Data/raster/B4.tif")
+
+plot(nord_B5)
+plot(nord_B4)
+
+NDVI=(nord_B5-nord_B4)/(nord_B5+nord_B4)
+plot(NDVI)
+
+```
+
+
+## VIsualisation
+
+il existes plusiurs moyens de visualiser des données sur R. Dans cette partie nous allons juste traiter quelques exemples.
+
+```{r VIZ}
+
+x=seq(-2*pi,2*pi,0.2)
+
+
+plot(x,sin(x),type="l")
+lines(x,cos(x),col="red")
+
+x=seq(-100,100,0.2)
+
+plot(x,2*x^2+x+1,type="l",col="blue")
+
+
+library(ggplot2)
+
+ggplot(data=senegal,aes(x=Region,y=round(Population/1000)))+geom_col(fill="blue")+
+  theme_classic()+
+  labs(y="Population( en millier)",x="Region",title = "Population du Sénégal par région")+
+  theme( axis.text.x = element_text( angle = 90))
+
+ggplot(senegal,aes(x=Region,y=round(Superficie/1000)))+geom_col()+
+  theme_bw()+theme(axis.text.x = element_text(angle = 90))
+
+ggplot(senegal,aes(x=Region,y=densite))+geom_col()+
+  theme_bw()+theme(axis.text.x = element_text(angle = 90))
+```
