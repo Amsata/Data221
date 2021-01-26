@@ -2,3 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+R_docs/modules/Initiation_a_R/Data/Senegal.xlsx
+*.TIF
+*.csv
+*.prj
+*.dbf
+*.shp
+*.shx
+*.txt
+*.cpg
