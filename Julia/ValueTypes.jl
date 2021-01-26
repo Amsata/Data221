@@ -46,3 +46,14 @@ z=true
 parse(Int64, z)
 
 #On ne peut convertir que des nombres representé en haine de caracteres
+
+#=
+NB:
+100,200,234 nest pas valide en tant que entier mais il est valide
+=#
+
+x=100,232,444
+
+typeof(x)
+
+#Julia l considere comme un Tuple d'entier
