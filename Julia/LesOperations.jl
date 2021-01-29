@@ -21,7 +21,11 @@ x%z
 
 x^z
 
+x+=y # x=x+y
 
+x*=y #x=x*y
+
+x\y #la meme chaose que y/x
 #=
 LES OPERATEURS DE COMPARAISON: ils renvoient des objet de
 type Bool comme resultat
@@ -61,15 +65,10 @@ pour les opérateurs * ^
 ^(n):concatenation n fois
 
 =#
-
 n="Amsata"
 p=" Amsata"
 
 n*p
 
 p^2
-
-
-n^p
-
 # l'exposant doit toujours être un entier
