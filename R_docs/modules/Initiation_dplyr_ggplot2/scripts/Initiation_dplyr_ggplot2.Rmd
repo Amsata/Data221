@@ -26,6 +26,7 @@ Tout cela se combine naturellement avec `r "group_by ()"` qui vous permet d'effe
 
 library(readxl)
 library(dplyr)
+options(scipen = 999)
 list.files("data")
 fao_fbs=as.data.frame(read.csv("data/FAO_FBS_Senegal.csv"))
 View(fao_fbs)
@@ -180,7 +181,27 @@ Les variables peuvent être supprimées en définissant leur valeur sur NULL.
 Useful mutate functions
  +, -, log(), etc., for their usual mathematical meanings
  lead(), lag()
- dense_ank(), min_ank(), percent rank(), row number(), cume dist(), ntile()
+ dense_ank(), min_ank(), percent_rank(), row_number(), cume_dist(), ntile()
  cumsum(), cummean(), cummin(), cummax(), cumany(), cumall()
  na if(), coalesce()
  if else(), recode(), case when()
+
+```{r mut}
+
+fao_cdu %>% select(Item,Element,Year,Value) %>% mutate(log_value=log(Value))
+
+fao_cdu %>% filter(Item.Code=="111" & Element=="Import Quantity") %>%  
+  select(!contains(c("code","Flag"))) %>% 
+  mutate(Q1=quantile(Value,0.25,na.rm=TRUE),
+         moyenne=mean(Value,na.rm=TRUE))
+
+donnee_bm %>% mutate_if(is.numeric,round,1)
+
+#mutate les variables dont le nom contient un nombre (ici les années)
+donnee_fmi %>% mutate_at(vars(matches("\\d")),as.numeric)
+
+donnee_fmi=donnee_fmi %>% mutate_at(vars(matches("\\d\\d\\d\\d")),as.numeric)
+
+
+```
+
