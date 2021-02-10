@@ -16,5 +16,7 @@ FIB(n) = (n == 1 || n==2) ? 1 :  FIB(n - 1)+FIB(n-2)
 
 using Pkg
 
-Pkg.add("BenchmarkTools")
-@btime FIB(30)
+using BenchmarkTools
+@btime FIB(100)
+
+FIB(30)
