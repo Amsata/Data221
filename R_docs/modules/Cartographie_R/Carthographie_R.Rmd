@@ -1,0 +1,559 @@
+---
+title: "Cartographie avec R"
+author: "Data 221,Aboubacar HEMA"
+date: "18/01/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Quelques notions de base en cartographie
+
+* La terre est un objet en 3 dimensions, une sphère.
+
+* Sur cette sphère, un point est défini par des **coordonnées géographiques** qui sont la **latitude** et la **longitude**, ce sont des mesures angulaires.
+
+* Ces mesures peuvent être exprimées en **degrés sexa-décimaux**: 60°23'20" ou en **degrés décimaux**: 60°23'xxxx'Nord.
+
+* Une carte est donc un objet en deux dimensions.
+
+* Sur une carte les lieux sont définis par des coordonnées, la latitude correspond à l'axe des Y et la longitude à l'axe de X.
+
+* Sur une carte la latitude et la longitude sont exprimées en :
+  * **degrés décimaux**, dans ce cas on est en référentiel appelé **WGS84** (utilisé par les GPS).
+  
+  * **mètre**, on est en projection **Lamber93**.
+
+
+
+# Premiers pas en cartographie avec R
+
+Toutes les opérations classiques sur des données spatialisées peuvent être totalement réalisées dans **R**:
+
+ * Lecture et exploration des données spatialisées / géographiques
+ 
+ * Manipulation des attributs (création, sélection)
+ 
+ * Traitements géomatiques (intersection, jointure, calcul de surface)
+ 
+ * Création de cartes (statiques, interactives)
+ 
+Il existe plusieurs packages qui touchent aux objets spatiaux (sf, raster, sp, etc…) avec parfois des formats d’objet différents (un peu comme data frame et tibble) et plein de packages qui s’intéressent à la cartographie (ggmap, tmap, leaflet, cartography..etc).
+
+Dans cet webinaire, nous allons utiliser les packages suivants :
+
+  * dplyr
+  * sf
+  * ggplot2
+  * tmap
+  * leaflet (inclu dans tmap)
+
+# La cartographie et les analyses spatiales avec R
+
+## Format des fichiers de couches vectorielles
+
+Nous allons nous focaliser uniquement sur les données vectorielles (Point, Ligne et Polygone). 
+
+**Attention** : 4 fichiers minimum (**.shp**, **.shx**, **.dbf**, **.prj**)
+* **.shp** contient les géométries des Shapefiles
+
+* **.shx** contient les données d'index pointant vers la structure du fichier **shp**
+
+* **.dbf** contient les attributs
+
+* **.prj** fichier contenant le système de coordonnées et la projection
+
+## L'importation dans R
+
+En important mes données shapefile avec la fonction **st_read()** du package **sf** elles  deviennent une table de données classiques et qu'on pourrais utiliser les fonctions du package **tidyverse** pour la manipulation.
+
+# Installation des packages
+Vous pouvez ces lignes de code suivantes en elevant **#**.
+```{r}
+#Installation des packages
+
+# install.packages("sf")
+# install.packages("ggplot2")
+# install.packages("dplyr")
+
+```
+
+# Appel des packages installés
+
+```{r}
+library(sf)
+library(ggplot2)
+library(dplyr)
+
+
+
+
+
+
+```
+
+# Importation des données (shapefiles)
+
+Importation et affichage uniquement de la géométrie du Sénégal
+
+```{r}
+SEN_adm0<-st_read("C:\\Users\\DELLDRAMOMO\\Desktop\\Webinaire R Data221\\webinaire_3\\Data\\SEN_adm\\SEN_adm0.shp",quiet = T)
+#Afficher 
+ggplot(st_geometry(SEN_adm0)) + geom_sf()
+```
+
+Importation et affichage uniquement de la géométrie des régions  du Sénégal
+
+```{r}
+SEN_adm1<-st_read("C:\\Users\\DELLDRAMOMO\\Desktop\\Webinaire R Data221\\webinaire_3\\Data\\SEN_adm\\SEN_adm1.shp",quiet = T)
+#Afficher 
+ggplot(st_geometry(SEN_adm1)) + geom_sf()
+```
+
+Importation et affichage uniquement de la géométrie des département du Sénégal
+
+```{r}
+SEN_adm2<-st_read("C:\\Users\\DELLDRAMOMO\\Desktop\\Webinaire R Data221\\webinaire_3\\Data\\SEN_adm\\SEN_adm2.shp",quiet = T)
+#Afficher 
+ggplot(st_geometry(SEN_adm2)) + geom_sf()
+```
+
+Importation et affichage uniquement de la géométrie des communes du Sénégal
+
+```{r}
+SEN_adm3<-st_read("C:\\Users\\DELLDRAMOMO\\Desktop\\Webinaire R Data221\\webinaire_3\\Data\\SEN_adm\\SEN_adm3.shp",quiet = F)
+#Afficher 
+ggplot(st_geometry(SEN_adm0)) + geom_sf()
+```
+
+## Faire la jointure avec le fichier csv qui contient des informations sur les régions du Sénégal
+
+On importe d'abord le fichier **csv**.
+
+```{r}
+data<-read.csv2("C:\\Users\\DELLDRAMOMO\\Desktop\\Webinaire R Data221\\webinaire_3\\Data\\data.csv")
+
+```
+
+```{r}
+
+map_and_data<-left_join(SEN_adm1,data)
+#View(map_and_data)
+ggplot(st_geometry(map_and_data)) + geom_sf()
+```
+
+## Visualisation avec ggplot2
+
+### variables catégorielles
+
+```{r}
+
+ggplot(map_and_data) +
+  geom_sf(aes(fill = REGION))
+# ggplot(SEN_adm0) +
+#   geom_sf(aes(fill = NAME_1))
+
+```
+Ce n'est pas une carte ça! Diront nos amis cartographes!
+Alors enlevons la légende et écrivons les textes dans chaque région.
+
+```{r}
+ggplot(map_and_data) +
+ geom_sf(aes(fill = REGION)) +
+ theme(legend.position = "none") +
+ geom_sf_text(aes(label = REGION), colour = "black")
+```
+
+Ils me diront encore que **x** et **y** représentent quoi?
+Alors changeons **x** en **Longitude** et **y** en **Latitude**.
+
+```{r}
+ggplot(map_and_data) +
+ geom_sf(aes(fill = REGION)) +
+ theme(legend.position = "none") +
+ geom_sf_text(aes(label = REGION), colour = "black") +
+  labs(x="Longitude",y="Latitude")
+```
+
+Où est le titre?, l'orientation?, la source? la légende?, l'annotation
+Ouf! Encore des questions!
+Pour l'orientation, il faudra installer le package **ggspatial**.
+
+```{r}
+ggplot(map_and_data) +
+ geom_sf(aes(fill = REGION)) +
+ theme(legend.position = "none") +
+ geom_sf_text(aes(label = REGION), colour = "black") +
+  labs(x="Longitude",y="Latitude")+
+  labs(title ="Carte du Sénégal")
+```
+
+```{r}
+library(ggspatial)
+ggplot(map_and_data) +
+ geom_sf(aes(fill = REGION)) +
+ theme(legend.position = "none") +
+ geom_sf_text(aes(label = REGION), colour = "black") +
+  labs(x="Longitude",y="Latitude")+
+  labs(title ="Carte du Sénégal") +
+   annotation_scale(location = "bl", width_hint = 0.3)
+```
+
+```{r}
+#annotation_north_arrow(location = "br", which_north = "true")
+graphe<-ggplot(map_and_data) +
+ geom_sf(aes(fill = REGION)) +
+ theme(legend.position = "none") +
+ geom_sf_text(aes(label = REGION), colour = "black") +
+  labs(x="Longitude",y="Latitude")+
+  labs(title ="Carte du Sénégal") +
+   annotation_scale(location = "bl", width_hint = 0.3)+
+  annotation_north_arrow(location = "tr", which_north = "true",
+                         pad_x = unit(0.2, "in"), pad_y = unit(0.2, "in"))
+graphe2 <- graphe + scale_fill_viridis_d()
+graphe2
+#tl=top left
+#tr=top righ
+#bl=bottom left
+#br=bottom righ
+```
+
+Exporter le graphe
+
+```{r}
+ggsave("carte.png",height = 10,width = 10)
+```
+
+### Variables continues
+
+Réprésentons le **Taux d'Alphabétisation Générale (TGA)** suivant les régions du Sénégal.
+
+```{r}
+ggplot(map_and_data) +
+ geom_sf(aes(fill = TAG))  +
+ geom_sf_text(aes(label = REGION), colour = "black") +
+  labs(x="Longitude",y="Latitude")+
+  labs(title ="TAG par région") +
+   annotation_scale(location = "bl", width_hint = 0.3)+
+  annotation_north_arrow(location = "tr", which_north = "true",
+                         pad_x = unit(0.2, "in"), pad_y = unit(0.2, "in"))
+
+
+```
+ 
+ Les régions qui ont un **TAG** supérieur à la moyenne.
+ 
+```{r}
+ggplot(map_and_data) +  
+ geom_sf(aes(fill = ifelse(map_and_data$TAG>mean(map_and_data$TAG,na.rm=T),"green","red"))) +
+  guides(fill=guide_legend((Title="Legende"))) #pour changer la légende
+
+```
+ 
+ 
+ Continuons avec le package **tmap**.
+ 
+```{r}
+library(tmap)
+# TAG suivant les régions
+map<-qtm(map_and_data, fill="TAG")
+map
+```
+```{r}
+tmap_mode("view")
+map
+```
+
+
+```{r}
+tmap_save(map,"map.png")
+map +
+tm_legend(show = FALSE)
+```
+
+```{r}
+map <-map + tm_style("classic") 
+map
+```
+
+```{r}
+tmap_mode("plot") # pour enlever le mode View
+
+map +
+     tm_text("REGION")+
+     tm_compass(type = "8star", position = c("left", "top"))+
+     tm_scale_bar(breaks = c(0, 100, 200), text.size = 0.5,position="left")+ tm_layout(title = "Carte du Sénégal")+
+     tm_credits("\nSource: Aboubacar HEMA", position=c("left", "bottom"))
+```
+
+```{r}
+map +
+     tm_text("NAME_1")+
+     tm_compass(type = "8star", position = c("left", "top"))+
+     tm_scale_bar(breaks = c(0, 50, 100), text.size = 0.5,position="left")+ tm_layout(title = "Carte du Sénégal")+
+     tm_credits("\nSource: Aboubacar HEMA", position=c("left", "bottom"))+ tm_bubbles(size = "TAG", col = "red")
+```
+
+```{r}
+qtm(map_and_data, fill="TAG") +
+     tm_compass(type = "8star", position = c("left", "top"))+tm_squares(size = "SUPERFICIE", col = "blue")
+
+```
+
+```{r}
+map +
+     tm_text("NAME_1")+
+     tm_compass(type = "8star", position = c("left", "top")) +
+  tm_dots(size = "TAG", col = "blue")
+```
+
+
+```{r}
+tm1 <-map +
+     tm_text("NAME_1")+
+     tm_compass(type = "8star", position = c("left", "top"))
+SEN_adm2<-st_read("C:\\Users\\DELLDRAMOMO\\Desktop\\Webinaire R Data221\\webinaire_3\\Data\\SEN_adm\\SEN_adm2.shp",quiet = T)
+
+# a<-f(data,x,y)
+# a<-data %>% f(x,y)
+# Kafrine<-SEN_adm2[NAME_1=="Kaffrine",]
+Kafrine <-SEN_adm2 %>%
+  filter(NAME_1 %in% c("Kaffrine")) 
+tm2 <-qtm(Kafrine) + tm_text("NAME_2") + tm_style("classic") +
+     tm_compass(type = "8star", position = c("left", "top")) + tm_layout(title = "Kafrine")
+tmap_arrange(tm1, tm2)
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+# Kafrine <-map_and_data %>% 
+#   filter(REGION %in% c("Kaffrine"))
+# 
+# # zone tampon
+# Kafrine_buffer <- 
+#   Kafrine %>% 
+#   st_buffer(
+#     dist = 
+#       units::set_units(10, km)
+#   ) %>% 
+#   st_cast() # useful sometimes 
+```
+
+
+```{r}
+data2<-read.csv2("C:\\Users\\DELLDRAMOMO\\Desktop\\Webinaire R Data221\\webinaire_3\\Data\\data2.csv")
+
+data2<-data2 %>% rename(lon=xcoord,lat=ycoord)
+
+
+```
+
+```{r}
+sf_data2 <- st_as_sf(data2, 
+	coords = c("lon", "lat"), 
+	remove = FALSE, 
+	crs = 4326, #depend du pays
+	agr = "constant")
+
+sf_data2$Animal<-as.factor(sf_data2$Animal)
+```
+
+```{r}
+DR2_countries_map <- ggplot(data =  map_and_data)+
+	geom_sf(fill = ifelse(map_and_data$NAME_1 %in% c("Kaffrine"), "#c8242b", "lightgrey"), 
+	color = "black")+geom_sf_text(aes(label = REGION), colour = "black")
+
+DR2_countries_map
+```
+
+```{r}
+DR2_countries_map+
+	coord_sf(xlim = c(min(data2$lon,na.rm = T), max(data2$lon,na.rm = T)), 
+		ylim = c(min(data2$lat,na.rm = T), max(data2$lat,na.rm = T)), 
+		expand = TRUE)
+```
+
+
+```{r}
+g1<-ggplot(sf_data2)   +
+  geom_sf(aes(color = Animal)) +
+  geom_sf(data = map_and_data, colour = "black", fill = NA)
+
+g2<-ggplot(sf_data2)   +
+  geom_sf(aes(color = Animal))
+
+#Afficher les deux graphiques côte à côte
+
+library(ggpubr)
+ggarrange(g1,g2,common.legend = T)
+```
+
+```{r}
+
+```
+
+```{r}
+library(ggpubr)
+ggplot(data = map_and_data) +
+  geom_sf(fill = ifelse(map_and_data$NAME_1 %in% c("Fatick","Diourbel","Thiès"), "#c8242b", "lightgrey"), 
+	color = "black") +
+  geom_rect(xmin = min(data2$lon,na.rm = T), xmax = max(data2$lon,na.rm = T), ymin = min(data2$lat,na.rm = T), ymax = max(data2$lat,na.rm = T), 
+     fill = NA, colour = "black", size = 0.5)+geom_sf_text(aes(label = REGION), colour = "black")
+
+
+```
+
+```{r}
+zone_etude <-map_and_data %>% filter(REGION %in% c("Fatick","Diourbel","Thiès"))
+
+(etude <- ggplot(data = zone_etude)  +geom_sf(fill = ifelse(zone_etude$NAME_1 %in% c("Fatick","Diourbel","Thiès"), "#c8242b", "lightgrey"), 
+	color = "black")+
+  geom_rect(xmin = min(data2$lon,na.rm = T), xmax = max(data2$lon,na.rm = T), ymin = min(data2$lat,na.rm = T), ymax = max(data2$lat,na.rm = T), 
+     fill = NA, colour = "black", size = 0.5))+geom_sf_text(aes(label = REGION), colour = "black")
+```
+
+Calcul de la TAG de notre zone d'étude
+
+Quelques opérations
+
+```{r}
+zone_etude$AREA<-st_area(zone_etude)
+View(zone_etude)
+
+map_and_data$AREA<-st_area(map_and_data)
+
+View(map_and_data)
+ggplot(st_geometry(map_and_data)) + geom_sf()
+```
+
+Comment enlever **[m^2]**?
+```{r}
+library(stringr)
+zone_etude$AREA<-stringr::str_extract(zone_etude$AREA, "\\d+")
+zone_etude$AREA<-as.numeric(zone_etude$AREA)
+View(zone_etude)
+```
+
+Superficie de la zone d'étude
+```{r}
+sum(zone_etude$AREA)/1000000
+```
+
+Calcul de distance
+
+Calculons la distance entre Dakar et Matam
+
+```{r}
+Dakar<-map_and_data %>% filter(REGION %in% ("Dakar"))
+
+Matam<-map_and_data %>% filter(REGION %in% ("Matam"))
+
+st_distance(Dakar,Matam)
+```
+
+# Les systèmes de projections
+ 
+## Consulter la projection d’un objet
+ 
+
+```{r}
+st_crs(map_and_data)
+```
+
+## Modifier la projection d’un objet
+
+```{r}
+modi_crs<-st_transform(map_and_data,2154)
+g1<-ggplot(st_geometry(modi_crs)) + geom_sf()
+g2<-ggplot(st_geometry(map_and_data)) + geom_sf()
+ggarrange(g1,g2)
+
+st_crs(modi_crs)
+
+```
+
+# Opérations de géotraitement
+
+Les objets **sf** sont des **data.frame**, on peut donc sélectionner leur lignes et leur colonnes de la même manière que les **data.frame**.
+
+
+```{r}
+# selection de ligne
+dakar <-map_and_data %>% filter(REGION =="Dakar")
+
+# dakar_df<-map_and_data_df[map_and_data_df$REGION=="Dakar",]
+# class(map_and_data)
+# # selection de colonnes
+# names(map_and_data)
+# map_and_data_df<-st_drop_geometry(map_and_data)
+# class(map_and_data_df)
+
+ggplot(st_geometry(dakar)) + geom_sf()
+```
+
+## Extraire des centroides
+
+```{r}
+sen_c<-st_centroid(map_and_data)
+#View(sen_c)
+```
+
+## Créer une matrice de distances
+
+Se calcule à partir des centroides
+```{r}
+mat <- st_distance(x = sen_c, y = sen_c)
+#View(mat)
+```
+
+## Agréger des polygones
+
+```{r}
+ggplot(st_geometry(map_and_data)) + geom_sf()
+sen <- st_union(map_and_data)
+ggplot(sen) + geom_sf()
+st_write(sen,"sen.shp")
+```
+
+
+
+## Agréger des polygones en fonction d’une variable
+Supposons qu'on connaît la population par dépardement, et on veut calculer la population par région.
+
+```{r}
+
+depar<-st_read("C:\\Users\\DELLDRAMOMO\\Desktop\\Webinaire R Data221\\webinaire_3\\Data\\SEN_adm\\SEN_adm2.shp")
+View(depar)
+depar$POP<-round(rnorm(nrow(depar),1000000,sd=10000),0)
+
+sen_u <- aggregate(x = depar[,c("POP")],
+                    by = list(NAME_1 = depar$NAME_1),
+                    FUN = "sum")
+
+```
+
+
+```{r}
+pts <- st_sample(x = map_and_data, size = 2000)
+#Exécuter le code qui suit en dehors de Rmarkdown
+# plot(st_geometry(map_and_data))
+# plot(pts, pch = 20, col = "red", add=TRUE, cex = 1)
+
+```
+
+```{r}
+inter <- st_intersects(map_and_data, pts)
+map_and_data$nbpts <- sapply(X = inter, FUN = length)
+plot(st_geometry(map_and_data))
+plot(st_geometry(map_and_data[map_and_data$nbpts>2,]), col = "grey", add=TRUE)
+plot(pts, pch = 20, col = "red", add=TRUE, cex = 1)
+```
