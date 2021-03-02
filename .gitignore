@@ -16,3 +16,5 @@ R_docs/modules/Initiation_dplyr_ggplot2/scripts/Initiation_dplyr_ggplot2.html
 *.xlsx
 *.xls
 *.tex
+*.zip
+*.qpj
